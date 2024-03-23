@@ -1,125 +1,381 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+import 'firebase_options.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Product {
+  String categoryId = '';
+  String description = '';
+  String productType = '';
+  String sku = '';
+  String thumbnail = '';
+  String title = '';
+  double price = 0.0;
+  double salePrice = 0.0;
+  int stock = 0;
+  bool isFeatured = false;
+  List<String> images = [];
+  Map<String, dynamic> brand = {};
+  List<Map<String, dynamic>> productAttributes = [];
+  List<Map<String, dynamic>> productVariations = [];
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+  // Convert Product object to Map
+  Map<String, dynamic> toMap() {
+    return {
+      'CategoryId': categoryId,
+      'Description': description,
+      'ProductType': productType,
+      'SKU': sku,
+      'Thumbnail': thumbnail,
+      'Title': title,
+      'Price': price,
+      'SalePrice': salePrice,
+      'Stock': stock,
+      'IsFeatured': isFeatured,
+      'Images': images,
+      'Brand': brand,
+      'ProductAttributes': productAttributes,
+      'ProductVariations': productVariations.map((variation) {
+        variation['AttributeValues'] ??= {};
+        return variation;
+      }).toList(),
+    };
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class FirestoreInsertDemo extends StatefulWidget {
+  const FirestoreInsertDemo({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _FirestoreInsertDemoState createState() => _FirestoreInsertDemoState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final Product product = Product();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  final TextEditingController _categoryIdController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _productTypeController = TextEditingController();
+  final TextEditingController _skuController = TextEditingController();
+  final TextEditingController _thumbnailController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _salePriceController = TextEditingController();
+  final TextEditingController _stockController = TextEditingController();
+  final TextEditingController _isFeaturedController = TextEditingController();
+  final TextEditingController _imagesController = TextEditingController();
+  final TextEditingController _brandIdController = TextEditingController();
+  final TextEditingController _brandImageController = TextEditingController();
+  final TextEditingController _brandNameController = TextEditingController();
+  final TextEditingController _brandIsFeaturedController = TextEditingController();
+  final TextEditingController _productsCountController = TextEditingController();
+
+  List<Map<String, dynamic>> _attributes = [];
+  List<Map<String, dynamic>> _variations = [];
+
+  void _submitForm() {
+    final form = _formKey.currentState;
+    if (form != null && form.validate()) {
+      form.save();
+      product.categoryId = _categoryIdController.text;
+      product.description = _descriptionController.text;
+      product.productType = _productTypeController.text;
+      product.sku = _skuController.text;
+      product.thumbnail = _thumbnailController.text;
+      product.title = _titleController.text;
+      product.price = double.tryParse(_priceController.text) ?? 0.0;
+      product.salePrice = double.tryParse(_salePriceController.text) ?? 0.0;
+      product.stock = int.tryParse(_stockController.text) ?? 0;
+      product.isFeatured = _isFeaturedController.text.toLowerCase() == 'true';
+      product.images = _imagesController.text.split(',');
+      product.brand = {
+        'Id': _brandIdController.text,
+        'Image': _brandImageController.text,
+        'Name': _brandNameController.text,
+        'IsFeatured': _brandIsFeaturedController.text.toLowerCase() == 'true',
+        'ProductsCount': int.tryParse(_productsCountController.text) ?? 0,
+      };
+      product.productAttributes = _attributes;
+      product.productVariations = _variations;
+
+      _insertProduct(product);
+    }
+  }
+
+  Future<void> _insertProduct(Product product) async {
+    try {
+      // Get Firestore instance
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Add product to Firestore
+      await firestore.collection('Products').add(product.toMap());
+
+      debugPrint('Product inserted successfully!');
+    } catch (error) {
+      debugPrint('Error inserting product: $error');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Firestore Insert Demo'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: _categoryIdController,
+                decoration: const InputDecoration(labelText: 'Category ID'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter category ID';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Description'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter description';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _productTypeController,
+                decoration: const InputDecoration(labelText: 'Product Type'),
+              ),
+              TextFormField(
+                controller: _skuController,
+                decoration: const InputDecoration(labelText: 'SKU'),
+              ),
+              TextFormField(
+                controller: _thumbnailController,
+                decoration: const InputDecoration(labelText: 'Thumbnail'),
+              ),
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: 'Title'),
+              ),
+              TextFormField(
+                controller: _priceController,
+                decoration: const InputDecoration(labelText: 'Price'),
+                keyboardType: TextInputType.number,
+              ),
+              TextFormField(
+                controller: _salePriceController,
+                decoration: const InputDecoration(labelText: 'Sale Price'),
+                keyboardType: TextInputType.number,
+              ),
+              TextFormField(
+                controller: _stockController,
+                decoration: const InputDecoration(labelText: 'Stock'),
+                keyboardType: TextInputType.number,
+              ),
+              TextFormField(
+                controller: _isFeaturedController,
+                decoration: const InputDecoration(labelText: 'Is Featured'),
+              ),
+              TextFormField(
+                controller: _imagesController,
+                decoration: const InputDecoration(labelText: 'Images (comma-separated)'),
+              ),
+              TextFormField(
+                controller: _brandIdController,
+                decoration: const InputDecoration(labelText: 'Brand ID'),
+              ),
+              TextFormField(
+                controller: _brandImageController,
+                decoration: const InputDecoration(labelText: 'Brand Image'),
+              ),
+              TextFormField(
+                controller: _brandNameController,
+                decoration: const InputDecoration(labelText: 'Brand Name'),
+              ),
+              TextFormField(
+                controller: _brandIsFeaturedController,
+                decoration: const InputDecoration(labelText: 'Brand IsFeatured'),
+              ),
+              TextFormField(
+                controller: _productsCountController,
+                decoration: const InputDecoration(labelText: 'Products Count'),
+                keyboardType: TextInputType.number,
+              ),
+              _buildAttributesInput(),
+              _buildVariationsInput(),
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: const Text('Insert Product'),
+              ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+  Widget _buildAttributesInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Product Attributes',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: _attributes.length + 1,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            if (index == _attributes.length) {
+              return ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _attributes.add({});
+                  });
+                },
+                child: const Text('Add Attribute'),
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Name'),
+                  onChanged: (value) {
+                    _attributes[index]['Name'] = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                      labelText: 'Values (comma-separated)'),
+                  onChanged: (value) {
+                    _attributes[index]['Values'] = value.split(',');
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildVariationsInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Product Variations',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: _variations.length + 1,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            if (index == _variations.length) {
+              return ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _variations.add({});
+                  });
+                },
+                child: const Text('Add Variation'),
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Color'),
+                  onChanged: (value) {
+                    _variations[index]['AttributeValues'] ??= {};
+                    _variations[index]['AttributeValues']['Color'] = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Size'),
+                  onChanged: (value) {
+                    _variations[index]['AttributeValues'] ??= {};
+                    _variations[index]['AttributeValues']['Size'] = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  onChanged: (value) {
+                    _variations[index]['Description'] = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Id'),
+                  onChanged: (value) {
+                    _variations[index]['Id'] = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Image'),
+                  onChanged: (value) {
+                    _variations[index]['Image'] = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'SKU'),
+                  onChanged: (value) {
+                    _variations[index]['SKU'] = value;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Price'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _variations[index]['Price'] = double.tryParse(value) ?? 0.0;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Sale Price'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _variations[index]['SalePrice'] =
+                        double.tryParse(value) ?? 0.0;
+                  },
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'Stock'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    _variations[index]['Stock'] = int.tryParse(value) ?? 0;
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(MaterialApp(
+    theme: ThemeData(primarySwatch: Colors.blue),
+    home: const FirestoreInsertDemo(),
+  ));
 }

@@ -36,6 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   modal_progress_hud_nsn: ^0.5.1
+  get:
   # firebase
   firebase_core: 
   cloud_firestore: 

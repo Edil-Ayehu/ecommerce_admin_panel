@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import 'firebase_options.dart';
+import 'theme/theme.dart';
 
 class Product {
   String categoryId = '';
@@ -226,6 +227,7 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
@@ -236,68 +238,83 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _productTypeController,
                   decoration: const InputDecoration(labelText: 'Product Type'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _skuController,
                   decoration: const InputDecoration(labelText: 'SKU'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _thumbnailController,
                   decoration: const InputDecoration(labelText: 'Thumbnail'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _titleController,
                   decoration: const InputDecoration(labelText: 'Title'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _priceController,
                   decoration: const InputDecoration(labelText: 'Price'),
                   keyboardType: TextInputType.number,
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _salePriceController,
                   decoration: const InputDecoration(labelText: 'Sale Price'),
                   keyboardType: TextInputType.number,
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _stockController,
                   decoration: const InputDecoration(labelText: 'Stock'),
                   keyboardType: TextInputType.number,
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _isFeaturedController,
                   decoration: const InputDecoration(labelText: 'Is Featured'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _imagesController,
                   decoration: const InputDecoration(
                       labelText: 'Images (comma-separated)'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _brandIdController,
                   decoration: const InputDecoration(labelText: 'Brand ID'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _brandImageController,
                   decoration: const InputDecoration(labelText: 'Brand Image'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _brandNameController,
                   decoration: const InputDecoration(labelText: 'Brand Name'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _brandIsFeaturedController,
                   decoration:
                       const InputDecoration(labelText: 'Brand IsFeatured'),
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _productsCountController,
                   decoration: const InputDecoration(labelText: 'Products Count'),
                   keyboardType: TextInputType.number,
                 ),
+                const SizedBox(height: 10),
                 _buildAttributesInput(),
                 _buildVariationsInput(),
                 ElevatedButton(
@@ -327,7 +344,7 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             if (index == _attributes.length) {
-              return ElevatedButton(
+              return OutlinedButton(
                 onPressed: () {
                   setState(() {
                     _attributes.add({});
@@ -345,6 +362,7 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
                     _attributes[index]['Name'] = value;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(
                       labelText: 'Values (comma-separated)'),
@@ -377,7 +395,7 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             if (index == _variations.length) {
-              return ElevatedButton(
+              return OutlinedButton(
                 onPressed: () {
                   setState(() {
                     _variations.add({});
@@ -396,6 +414,7 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
                     _variations[index]['AttributeValues']['Color'] = value;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Size'),
                   onChanged: (value) {
@@ -403,30 +422,35 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
                     _variations[index]['AttributeValues']['Size'] = value;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Description'),
                   onChanged: (value) {
                     _variations[index]['Description'] = value;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Id'),
                   onChanged: (value) {
                     _variations[index]['Id'] = value;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Image'),
                   onChanged: (value) {
                     _variations[index]['Image'] = value;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'SKU'),
                   onChanged: (value) {
                     _variations[index]['SKU'] = value;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Price'),
                   keyboardType: TextInputType.number,
@@ -434,6 +458,7 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
                     _variations[index]['Price'] = double.tryParse(value) ?? 0.0;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Sale Price'),
                   keyboardType: TextInputType.number,
@@ -442,6 +467,7 @@ class _FirestoreInsertDemoState extends State<FirestoreInsertDemo> {
                         double.tryParse(value) ?? 0.0;
                   },
                 ),
+                const SizedBox(height: 10),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'Stock'),
                   keyboardType: TextInputType.number,
@@ -464,7 +490,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MaterialApp(
-    theme: ThemeData(primarySwatch: Colors.blue),
+    themeMode: ThemeMode.system,
+      theme: TAppTheme.lightTheme,
+      darkTheme: TAppTheme.darkTheme,
     home: const FirestoreInsertDemo(),
   ));
 }

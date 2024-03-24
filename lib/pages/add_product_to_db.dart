@@ -4,8 +4,6 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../models/product_model.dart';
 
-
-
 class AddProductToDB extends StatefulWidget {
   const AddProductToDB({Key? key}) : super(key: key);
 
@@ -38,7 +36,7 @@ class _AddProductToDBState extends State<AddProductToDB> {
   List<Map<String, dynamic>> _attributes = [];
   List<Map<String, dynamic>> _variations = [];
 
-   bool _showSpinner = false; // Variable to control progress indicator
+  bool _showSpinner = false; // Variable to control progress indicator
 
   void _submitForm() async {
     final form = _formKey.currentState;
@@ -75,7 +73,7 @@ class _AddProductToDBState extends State<AddProductToDB> {
       // Show modal bottom sheet indicating success or failure
       _showResultModal(success);
 
-       setState(() {
+      setState(() {
         _showSpinner = false; // Hide progress indicator
       });
 
@@ -89,8 +87,23 @@ class _AddProductToDBState extends State<AddProductToDB> {
       // Get Firestore instance
       FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      // Add product to Firestore
-      await firestore.collection('Products').add(product.toMap());
+      // Add product to 'Products' collection
+      DocumentReference productRef =
+          await firestore.collection('Products').add(product.toMap());
+      String productId =
+          productRef.id; // Get the document ID of the newly added product
+
+      // Add categoryId and productId to 'ProductCategory' collection
+      await firestore.collection('ProductCategory').add({
+        'categoryId': product.categoryId,
+        'productId': productId,
+      });
+
+      // Add brandId and categoryId to 'BrandCategory' collection
+      await firestore.collection('BrandCategory').add({
+        'brandId': product.brand['Id'],
+        'categoryId': product.categoryId,
+      });
 
       debugPrint('Product inserted successfully!');
       return true; // Return true for success
@@ -199,9 +212,23 @@ class _AddProductToDBState extends State<AddProductToDB> {
                   },
                 ),
                 const SizedBox(height: 10),
-                TextFormField(
-                  controller: _productTypeController,
+                DropdownButtonFormField<String>(
+                  value: _productTypeController.text.isNotEmpty
+                      ? _productTypeController.text
+                      : null,
                   decoration: const InputDecoration(labelText: 'Product Type'),
+                  items: ['ProductType.single', 'ProductType.variable']
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _productTypeController.text = newValue!;
+                    });
+                  },
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -237,10 +264,24 @@ class _AddProductToDBState extends State<AddProductToDB> {
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 10),
-                TextFormField(
-                  controller: _isFeaturedController,
+                DropdownButtonFormField<String>(
+                  value: _isFeaturedController.text.isNotEmpty
+                      ? _isFeaturedController.text
+                      : null,
                   decoration: const InputDecoration(labelText: 'Is Featured'),
+                  items: ['true', 'false'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _isFeaturedController.text = newValue!;
+                    });
+                  },
                 ),
+
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: _imagesController,
@@ -263,15 +304,28 @@ class _AddProductToDBState extends State<AddProductToDB> {
                   decoration: const InputDecoration(labelText: 'Brand Name'),
                 ),
                 const SizedBox(height: 10),
-                TextFormField(
-                  controller: _brandIsFeaturedController,
-                  decoration:
-                      const InputDecoration(labelText: 'Brand IsFeatured'),
+                DropdownButtonFormField<String>(
+                  value: _brandIsFeaturedController.text.isNotEmpty
+                      ? _brandIsFeaturedController.text
+                      : null,
+                  decoration: const InputDecoration(labelText: 'Brand IsFeatured'),
+                  items: ['true', 'false'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _brandIsFeaturedController.text = newValue!;
+                    });
+                  },
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: _productsCountController,
-                  decoration: const InputDecoration(labelText: 'Products Count'),
+                  decoration:
+                      const InputDecoration(labelText: 'Products Count'),
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 10),

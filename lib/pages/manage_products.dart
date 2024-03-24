@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ManageProducts extends StatefulWidget {
   const ManageProducts({Key? key}) : super(key: key);
@@ -9,49 +10,48 @@ class ManageProducts extends StatefulWidget {
 }
 
 class _ManageProductsState extends State<ManageProducts> {
-
   void _showDeleteConfirmationDialog(String productId) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: const Text('Are you sure you want to delete this product?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              _deleteProduct(productId); // Delete the product
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-  void _deleteProduct(String productId) async {
-  try {
-    await FirebaseFirestore.instance.collection('Products').doc(productId).delete();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Product deleted successfully')),
-    );
-  } catch (error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to delete product: $error')),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this product?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteProduct(productId); // Delete the product
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
-}
 
-
-
+  void _deleteProduct(String productId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Products')
+          .doc(productId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product deleted successfully')),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete product: $error')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +92,7 @@ class _ManageProductsState extends State<ManageProducts> {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                   _showDeleteConfirmationDialog(document.id);
+                    _showDeleteConfirmationDialog(document.id);
                   },
                 ),
               );

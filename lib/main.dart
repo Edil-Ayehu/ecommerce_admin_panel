@@ -12,8 +12,8 @@ void main() async {
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
     themeMode: ThemeMode.system,
-      theme: TAppTheme.lightTheme,
-      darkTheme: TAppTheme.darkTheme,
+    theme: TAppTheme.lightTheme,
+    darkTheme: TAppTheme.darkTheme,
     home: const HomePage(),
   ));
 }

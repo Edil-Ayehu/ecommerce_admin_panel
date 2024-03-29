@@ -17,15 +17,21 @@ class ProductDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CachedNetworkImage(
-              imageUrl: '${productData["Thumbnail"]}',
-              placeholder: (context, url) => const CircularProgressIndicator(
-                  color: Colors.lightBlueAccent),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              width: double.infinity,
-              height: 400,
-              fit: BoxFit.cover,
-            ),
+            productData['Thumbnail'] != null &&
+                    productData['Thumbnail'].isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl: productData['Thumbnail'],
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                    width: double.infinity,
+                    height: 400,
+                    fit: BoxFit.cover,
+                  )
+                : const Placeholder(
+                    fallbackHeight: 400,
+                    fallbackWidth: double.infinity,
+                    color: Colors.grey,
+                  ),
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),

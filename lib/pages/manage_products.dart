@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ecommerce_admin_panel/pages/add_product_to_db.dart';
 import 'package:ecommerce_admin_panel/pages/product_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -243,11 +244,19 @@ class _ManageProductsState extends State<ManageProducts> {
                     child: SizedBox(
                       width: 50,
                       height: 50,
-                      child: CachedNetworkImage(
-                        imageUrl: data['Thumbnail'],
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                        fit: BoxFit.cover,
-                      ),
+                      child: data['Thumbnail'] != null &&
+                              data['Thumbnail'].isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: data['Thumbnail'],
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
+                              fit: BoxFit.cover,
+                            )
+                          : const Placeholder(
+                              fallbackHeight: 50,
+                              fallbackWidth: 50,
+                              color: Colors.grey,
+                            ),
                     ),
                   ),
                   // leading: CachedNetworkImage(imageUrl: '${data["Thumbnail"]}'),
@@ -273,6 +282,16 @@ class _ManageProductsState extends State<ManageProducts> {
             }).toList(),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to AddProductToDB page when FAB is pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddProductToDB()),
+          );
+        },
+        child: const Icon(Icons.add), // Add icon to the button
       ),
     );
   }

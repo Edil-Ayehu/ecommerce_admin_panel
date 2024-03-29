@@ -1,9 +1,9 @@
+import 'package:ecommerce_admin_panel/pages/banners_page.dart';
 import 'package:ecommerce_admin_panel/pages/customers_page.dart';
 import 'package:ecommerce_admin_panel/pages/manage_products.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../pages/add_product_to_db.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({
@@ -22,8 +22,37 @@ class MyDrawer extends StatelessWidget {
           Column(
             children: [
               ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text("Home"),
+                leading: const Icon(Icons.dashboard),
+                title: const Text("Dashboard"),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.announcement),
+                title: const Text("Banners"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Get.to(() => const BannersPage());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.folder),
+                title: const Text("Categories"),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.star),
+                title: const Text("Brands"),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.shopping_cart),
+                title: const Text("Orders"),
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -36,14 +65,14 @@ class MyDrawer extends StatelessWidget {
                   Get.to(() => const CustomersPage());
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.add),
-                title: const Text("Add Product"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Get.to(() => const AddProductToDB());
-                },
-              ),
+              // ListTile(
+              //   leading: const Icon(Icons.add),
+              //   title: const Text("Add Product"),
+              //   onTap: () {
+              //     Navigator.pop(context);
+              //     Get.to(() => const AddProductToDB());
+              //   },
+              // ),
               ListTile(
                 leading: const Icon(Icons.manage_history),
                 title: const Text("Manage Products"),

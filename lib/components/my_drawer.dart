@@ -1,4 +1,5 @@
 import 'package:ecommerce_admin_panel/pages/banners_page.dart';
+import 'package:ecommerce_admin_panel/pages/categories_page.dart';
 import 'package:ecommerce_admin_panel/pages/customers_page.dart';
 import 'package:ecommerce_admin_panel/pages/manage_products.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ class MyDrawer extends StatelessWidget {
                 title: const Text("Categories"),
                 onTap: () {
                   Navigator.pop(context);
+                  Get.to(() => CategoryProductScreen());
                 },
               ),
               ListTile(

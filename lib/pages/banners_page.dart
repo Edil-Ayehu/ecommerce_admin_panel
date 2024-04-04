@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,19 +44,19 @@ class _BannersPageState extends State<BannersPage> {
         'Active': active,
       }).then((value) {
         // If the document is added successfully
-        print('New banner added with ID: ${value.id}');
+        debugPrint('New banner added with ID: ${value.id}');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('New banner added successfully')),
         );
       }).catchError((error) {
         // If an error occurs while adding the document
-        print('Error adding banner: $error');
+        debugPrint('Error adding banner: $error');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to add new banner: $error')),
         );
       });
     } catch (error) {
-      print('Error saving banner data: $error');
+      debugPrint('Error saving banner data: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error saving banner data: $error')),
       );
